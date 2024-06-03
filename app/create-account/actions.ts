@@ -31,12 +31,12 @@ const formSchema = z
     email: z.string().email().toLowerCase().trim(),
     password: z
       .string()
-      .min(10)
+      .min(4)
       .regex(
         passwordRegex,
         "소문자, 대문자, 숫자, 특수문자를 하나이상 포함해야합니다."
       ),
-    confirm_password: z.string().min(10),
+    confirm_password: z.string().min(4),
   })
   .refine(checkPassword, {
     path: ["confirm_password"],

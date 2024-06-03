@@ -2,18 +2,14 @@
 
 import { useFormStatus } from "react-dom";
 
-interface FormButtonProps
+interface ButtonProps
   extends React.PropsWithChildren<
     React.ButtonHTMLAttributes<HTMLButtonElement>
   > {
   text: string;
 }
 
-export default function FormButton({
-  text,
-  children,
-  ...rest
-}: FormButtonProps) {
+export default function Button({ text, children, ...rest }: ButtonProps) {
   const { pending } = useFormStatus();
 
   return (
