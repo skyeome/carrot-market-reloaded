@@ -1,12 +1,12 @@
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  errors: string[];
+  errors?: string[];
 }
 
 export default function FormInput({
   type,
   placeholder,
   required,
-  errors,
+  errors = [],
   ...rest
 }: FormInputProps) {
   return (
