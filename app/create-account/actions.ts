@@ -1,9 +1,10 @@
 "use server";
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_REGEX,
+  PASSWORD_REGEX_ERROR,
+} from "@/lib/constants";
 import { z } from "zod";
-
-const passwordRegex = new RegExp(
-  /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).+$/
-);
 
 const checkUsername = (username: string) => !username.includes("potato");
 
@@ -22,21 +23,15 @@ const formSchema = z
         invalid_type_error: "문자열로 입력해주세요.",
         required_error: "유저명은 필수 입니다.",
       })
-      .min(3, "유저명은 2글자 이상만 가능합니다.")
-      .max(10, "유저명은 10글자 이하만 가능합니다.")
       .toLowerCase()
       .trim()
-      // .transform((username) => `👍`)
       .refine(checkUsername, "potato는 사용할수 없습니다."),
     email: z.string().email().toLowerCase().trim(),
     password: z
       .string()
-      .min(4)
-      .regex(
-        passwordRegex,
-        "소문자, 대문자, 숫자, 특수문자를 하나이상 포함해야합니다."
-      ),
-    confirm_password: z.string().min(4),
+      .min(PASSWORD_MIN_LENGTH)
+      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+    confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
   })
   .refine(checkPassword, {
     path: ["confirm_password"],
