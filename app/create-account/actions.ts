@@ -1,6 +1,10 @@
 "use server";
 import { z } from "zod";
 
+const passwordRegex = new RegExp(
+  /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).+$/
+);
+
 const checkUsername = (username: string) => !username.includes("potato");
 
 const checkPassword = ({
@@ -20,9 +24,18 @@ const formSchema = z
       })
       .min(3, "유저명은 2글자 이상만 가능합니다.")
       .max(10, "유저명은 10글자 이하만 가능합니다.")
+      .toLowerCase()
+      .trim()
+      // .transform((username) => `👍`)
       .refine(checkUsername, "potato는 사용할수 없습니다."),
-    email: z.string().email(),
-    password: z.string().min(10),
+    email: z.string().email().toLowerCase().trim(),
+    password: z
+      .string()
+      .min(10)
+      .regex(
+        passwordRegex,
+        "소문자, 대문자, 숫자, 특수문자를 하나이상 포함해야합니다."
+      ),
     confirm_password: z.string().min(10),
   })
   .refine(checkPassword, {
@@ -41,5 +54,7 @@ export async function createAccount(prevState: any, formData: FormData) {
   const result = formSchema.safeParse(data);
   if (!result.success) {
     return result.error.flatten();
+  } else {
+    console.log(result.data);
   }
 }
