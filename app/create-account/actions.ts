@@ -20,23 +20,6 @@ const checkPassword = ({
   confirm_password: string;
 }) => password === confirm_password;
 
-const checkUniqueUsername = async (username: string) => {
-  // username이 중복인지 확인
-  const user = await db.user.findUnique({
-    where: { username },
-    select: { id: true },
-  });
-  return !Boolean(user);
-};
-
-const checkUniqueEmail = async (email: string) => {
-  const user = await db.user.findUnique({
-    where: { email },
-    select: { id: true },
-  });
-  return !Boolean(user);
-};
-
 const formSchema = z
   .object({
     username: z
@@ -46,19 +29,45 @@ const formSchema = z
       })
       .toLowerCase()
       .trim()
-      .refine(checkUsername, "potato는 사용할수 없습니다.")
-      .refine(checkUniqueUsername, "이미 존재하는 사용자명 입니다."),
-    email: z
-      .string()
-      .email()
-      .toLowerCase()
-      .trim()
-      .refine(checkUniqueEmail, "이미 존재하는 이메일 입니다."),
+      .refine(checkUsername, "potato는 사용할수 없습니다."),
+    // .refine(checkUniqueUsername, "이미 존재하는 사용자명 입니다."),
+    email: z.string().email().toLowerCase().trim(),
+    // .refine(checkUniqueEmail, "이미 존재하는 이메일 입니다."),
     password: z
       .string()
       .min(PASSWORD_MIN_LENGTH)
       .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirm_password: z.string().min(PASSWORD_MIN_LENGTH),
+  })
+  .superRefine(async ({ username }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["username"],
+        message: "이미 존재하는 사용자명 입니다.",
+        fatal: true,
+      });
+      return z.NEVER;
+    }
+  })
+  .superRefine(async ({ email }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["email"],
+        message: "이미 존재하는 이메일 입니다.",
+        fatal: true,
+      });
+      return z.NEVER;
+    }
   })
   .refine(checkPassword, {
     path: ["confirm_password"],
