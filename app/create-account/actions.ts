@@ -8,6 +8,8 @@ import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
+import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
 
 const checkUsername = (username: string) => !username.includes("potato");
 
@@ -78,6 +80,7 @@ export async function createAccount(prevState: any, formData: FormData) {
   } else {
     // 비밀번호 암호화
     const hashedPassword = await bcrypt.hash(result.data.password, 12);
+
     // 사용자 db에 저장
     const user = await db.user.create({
       data: {
@@ -89,8 +92,16 @@ export async function createAccount(prevState: any, formData: FormData) {
         id: true,
       },
     });
-    console.log(user);
+    // 저장한 사용자 id 값 쿠키에 저장
+    const cookie = await getIronSession(cookies(), {
+      cookieName: "delicious-karrot",
+      password: process.env.COOKIE_PASSWORD!,
+    });
+    //@ts-ignore
+    cookie.id = user.id;
+    await cookie.save();
+
     // redirect "/home"
-    redirect("/home");
+    redirect("/profile");
   }
 }
