@@ -6,6 +6,8 @@ import {
 } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
+import bcrypt from "bcrypt";
+import { redirect } from "next/navigation";
 
 const checkUsername = (username: string) => !username.includes("potato");
 
@@ -74,9 +76,21 @@ export async function createAccount(prevState: any, formData: FormData) {
   if (!result.success) {
     return result.error.flatten();
   } else {
-    // TODO: 회원가입 후 로그인 로직 작성
     // 비밀번호 암호화
+    const hashedPassword = await bcrypt.hash(result.data.password, 12);
     // 사용자 db에 저장
+    const user = await db.user.create({
+      data: {
+        username: result.data.username,
+        email: result.data.email,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+      },
+    });
+    console.log(user);
     // redirect "/home"
+    redirect("/home");
   }
 }
