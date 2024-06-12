@@ -4,8 +4,8 @@ import { PASSWORD_MIN_LENGTH, PASSWORD_REGEX } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
+import updateSession from "@/lib/session/updateSession";
 
 const checkEmailExists = async (email: string) => {
   // 유저중 이메일 일치하는지 찾기
@@ -53,9 +53,7 @@ export async function login(prevState: any, formData: FormData) {
     const ok = await bcrypt.compare(result.data.password, user!.password ?? "");
     // 유저 로그인
     if (ok) {
-      const session = await getSession();
-      session.id = user!.id;
-      await session.save();
+      updateSession(user!.id);
       redirect("/profile");
     } else {
       return {
