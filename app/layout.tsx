@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "당근마켓",
-  description: "당근마켓 클론코딩",
+  title: { template: "%s | 담금마켓", default: "담금마켓" },
+  description: "담금마켓 클론코딩",
 };
 
 export default function RootLayout({
