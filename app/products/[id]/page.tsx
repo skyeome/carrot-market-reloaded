@@ -47,7 +47,12 @@ export default async function ProductDetail({
   return (
     <div>
       <div className="relative aspect-square">
-        <Image src={product.photo} alt={product.title} fill />
+        <Image
+          src={product.photo}
+          alt={product.title}
+          fill
+          className="object-cover"
+        />
       </div>
       <div className="p-5 flex items-center gap-3 border-b border-neutral-700">
         <div className="size-8 rounded-full overflow-hidden">
