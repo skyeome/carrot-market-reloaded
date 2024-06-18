@@ -2,7 +2,7 @@ import { formatToTimeAgo, formatToWon } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
-interface ListProductProps {
+interface ProductItemProps {
   title: string;
   price: number;
   created_at: Date;
@@ -10,13 +10,13 @@ interface ListProductProps {
   id: number;
 }
 
-export default function ListProduct({
+export default function ProductItem({
   title,
   price,
   created_at,
   photo,
   id,
-}: ListProductProps) {
+}: ProductItemProps) {
   return (
     <Link href={`/products/${id}`} className="flex gap-5">
       <div className="relative size-28 rounded-md overflow-hidden flex-shrink-0">
