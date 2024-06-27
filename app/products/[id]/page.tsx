@@ -42,7 +42,7 @@ export default async function ProductDetail({
     await db.product.delete({
       where: { id },
     });
-    redirect("/products");
+    redirect("/home");
   };
   return (
     <div>

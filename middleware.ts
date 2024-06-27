@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
     // 이미 로그인 한 상태
     if (exists) {
       // 로그인, 회원가입 관련 페이지 일때
-      return NextResponse.redirect(new URL("/products", request.url));
+      return NextResponse.redirect(new URL("/home", request.url));
     }
   }
 }
