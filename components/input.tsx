@@ -1,11 +1,17 @@
+import { ForwardedRef, forwardRef } from "react";
+
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   errors?: string[];
 }
 
-export default function Input({ errors = [], ...rest }: InputProps) {
+function _Input(
+  { errors = [], ...rest }: InputProps,
+  ref: ForwardedRef<HTMLInputElement>
+) {
   return (
     <div className="flex flex-col gap-2">
       <input
+        ref={ref}
         className="bg-transparent rounded-md w-full h-10 focus:outline-none ring-2 focus:ring-4 transition ring-neutral-200 focus:ring-orange-500 border-none placeholder:text-neutral-400"
         {...rest}
       />
@@ -17,3 +23,5 @@ export default function Input({ errors = [], ...rest }: InputProps) {
     </div>
   );
 }
+
+export default forwardRef(_Input);
