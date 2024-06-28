@@ -1,26 +1,11 @@
+import DeleteButton from "@/components/delete-button";
 import db from "@/lib/db";
-import getSession from "@/lib/session/getSession";
+import { getIsOwner, getProduct } from "@/lib/products/getProducts";
 import { formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-
-async function getIsOwner(userId: number) {
-  const session = await getSession();
-  if (session.id) {
-    return session.id === userId;
-  }
-  return false;
-}
-
-async function getProduct(id: number) {
-  const product = await db.product.findUnique({
-    where: { id },
-    include: { user: { select: { username: true, avatar: true } } },
-  });
-  return product;
-}
 
 export default async function ProductDetail({
   params,
@@ -36,14 +21,7 @@ export default async function ProductDetail({
     return notFound();
   }
   const isOwner = await getIsOwner(product.userId);
-  const onDelete = async () => {
-    "use server";
-    if (!isOwner) return;
-    await db.product.delete({
-      where: { id },
-    });
-    redirect("/home");
-  };
+
   return (
     <div>
       <div className="relative aspect-square">
@@ -79,13 +57,7 @@ export default async function ProductDetail({
         <span className="font-semibold text-lg">
           {formatToWon(product.price)}원
         </span>
-        {isOwner && (
-          <form action={onDelete}>
-            <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
-              상품 삭제
-            </button>
-          </form>
-        )}
+        {isOwner && <DeleteButton userId={id} isOwner={isOwner} />}
         <Link
           href={``}
           className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
