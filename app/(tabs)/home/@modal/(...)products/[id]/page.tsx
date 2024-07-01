@@ -1,10 +1,10 @@
-import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { formatToWon } from "@/lib/utils";
 import CloseButton from "@/components/close-button";
 import { PhotoIcon, UserIcon } from "@heroicons/react/24/solid";
 import { getIsOwner, getProduct } from "@/lib/products/getProducts";
-import Image from "next/image";
-import { formatToWon } from "@/lib/utils";
-import Link from "next/link";
 import DeleteButton from "@/components/delete-button";
 
 export default async function Modal({ params }: { params: { id: string } }) {

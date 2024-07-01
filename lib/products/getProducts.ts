@@ -12,9 +12,19 @@ export async function getIsOwner(userId: number) {
 }
 
 export async function getProduct(id: number) {
+  console.log("get product detail");
   const product = await db.product.findUnique({
     where: { id },
     include: { user: { select: { username: true, avatar: true } } },
+  });
+  return product;
+}
+
+export async function getProductTitle(id: number) {
+  console.log("get product title!");
+  const product = await db.product.findUnique({
+    where: { id },
+    select: { title: true },
   });
   return product;
 }

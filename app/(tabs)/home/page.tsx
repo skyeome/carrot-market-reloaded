@@ -11,7 +11,6 @@ const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
 });
 
 async function getInitialProducts() {
-  console.log("Getting initial products");
   const products = await db.product.findMany({
     select: {
       title: true,

@@ -1,11 +1,30 @@
-import DeleteButton from "@/components/delete-button";
-import db from "@/lib/db";
-import { getIsOwner, getProduct } from "@/lib/products/getProducts";
-import { formatToWon } from "@/lib/utils";
-import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { unstable_cache as nextCache, revalidateTag } from "next/cache";
+import { formatToWon } from "@/lib/utils";
+import {
+  getIsOwner,
+  getProduct,
+  getProductTitle,
+} from "@/lib/products/getProducts";
+import DeleteButton from "@/components/delete-button";
+import { UserIcon } from "@heroicons/react/24/solid";
+
+const getCachedProduct = nextCache(getProduct, ["product-detail"], {
+  tags: ["product-detail"],
+});
+
+const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
+  tags: ["product-title"],
+});
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const product = await getCachedProductTitle(Number(params.id));
+  return {
+    title: product?.title,
+  };
+}
 
 export default async function ProductDetail({
   params,
@@ -16,11 +35,15 @@ export default async function ProductDetail({
   if (isNaN(id)) {
     return notFound();
   }
-  const product = await getProduct(id);
+  const product = await getCachedProduct(id);
   if (!product) {
     return notFound();
   }
   const isOwner = await getIsOwner(product.userId);
+  const revalidate = async () => {
+    "use server";
+    revalidateTag("product-title");
+  };
 
   return (
     <div>
@@ -57,7 +80,14 @@ export default async function ProductDetail({
         <span className="font-semibold text-lg">
           {formatToWon(product.price)}원
         </span>
-        {isOwner && <DeleteButton userId={id} isOwner={isOwner} />}
+        {/* {isOwner && <DeleteButton userId={id} isOwner={isOwner} />} */}
+        {isOwner && (
+          <form action={revalidate}>
+            <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
+              Revalidate title cache
+            </button>
+          </form>
+        )}
         <Link
           href={``}
           className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
