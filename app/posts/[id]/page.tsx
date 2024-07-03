@@ -1,16 +1,27 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { unstable_cache as nextCache, revalidatePath } from "next/cache";
-import { EyeIcon, HandThumbUpIcon, UserIcon } from "@heroicons/react/24/solid";
+import { unstable_cache as nextCache, revalidateTag } from "next/cache";
+import { EyeIcon, UserIcon } from "@heroicons/react/24/solid";
 import { formatToTimeAgo } from "@/lib/utils";
 import db from "@/lib/db";
 import getPost from "@/lib/posts/getPost";
 import getSession from "@/lib/session/getSession";
-import getIsLiked from "@/lib/posts/getIsLiked";
+import getLikeStatus from "@/lib/posts/getLikeStatus";
+import LikeButton from "@/components/like-button";
 
-const getCachedPost = nextCache((id: number) => getPost(id), ["post-detail"], {
+const getCachedPost = nextCache(getPost, ["post-detail"], {
   revalidate: 60,
+  tags: ["post-detail"],
 });
+
+const getCachedLikeStatus = async (postId: number) => {
+  const session = await getSession();
+  const userId = session.id;
+  const cachedOperation = nextCache(getLikeStatus, ["post-like-status"], {
+    tags: [`like-status-${postId}`],
+  });
+  return cachedOperation(postId, userId!);
+};
 
 export default async function PostDetail({
   params,
@@ -21,7 +32,7 @@ export default async function PostDetail({
   if (isNaN(id)) return notFound();
   const post = await getCachedPost(id);
   if (!post) return notFound();
-  const isLiked = await getIsLiked(id);
+  const { likeCount, isLiked } = await getCachedLikeStatus(id);
 
   const likePost = async () => {
     "use server";
@@ -33,7 +44,7 @@ export default async function PostDetail({
           userId: session.id!,
         },
       });
-      revalidatePath(`/post/${id}`);
+      revalidateTag(`like-status-${id}`);
     } catch (e) {}
   };
   const dislikePost = async () => {
@@ -48,7 +59,7 @@ export default async function PostDetail({
           },
         },
       });
-      revalidatePath(`/post/${id}`);
+      revalidateTag(`like-status-${id}`);
     } catch (e) {}
   };
 
@@ -81,12 +92,7 @@ export default async function PostDetail({
           <span>조회 {post.views}</span>
         </div>
         <form action={isLiked ? dislikePost : likePost}>
-          <button
-            className={`flex items-center gap-2 text-neutral-400 text-sm border border-neutral-400 rounded-full p-2 hover:bg-neutral-800 transition-colors`}
-          >
-            <HandThumbUpIcon className="size-5" />
-            <span>공감하기 ({post._count.likes})</span>
-          </button>
+          <LikeButton isLiked={isLiked} likeCount={likeCount} />
         </form>
       </div>
     </div>

@@ -15,7 +15,7 @@ export default async function getPost(id: number) {
         _count: {
           select: {
             comments: true,
-            likes: true,
+            // likes: true,
           },
         },
       },
