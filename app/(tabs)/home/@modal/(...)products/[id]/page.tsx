@@ -1,11 +1,11 @@
-import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { formatToWon } from "@/lib/utils";
-import CloseButton from "@/components/close-button";
-import { PhotoIcon, UserIcon } from "@heroicons/react/24/solid";
+import { UserIcon } from "@heroicons/react/24/solid";
 import { getIsOwner, getProduct } from "@/lib/products/getProducts";
+import CloseButton from "@/components/close-button";
 import DeleteButton from "@/components/delete-button";
+import ChatButton from "@/components/chat-button";
 
 export default async function Modal({ params }: { params: { id: string } }) {
   const id = Number(params.id);
@@ -63,12 +63,7 @@ export default async function Modal({ params }: { params: { id: string } }) {
             {formatToWon(product.price)}원
           </span>
           {isOwner && <DeleteButton userId={id} isOwner={isOwner} />}
-          <Link
-            href={``}
-            className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
-          >
-            채팅하기
-          </Link>
+          <ChatButton sellerId={product.userId} />
         </div>
       </div>
     </div>

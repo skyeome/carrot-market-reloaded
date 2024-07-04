@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 import db from "@/lib/db";
@@ -10,6 +9,7 @@ import {
   getProductTitle,
 } from "@/lib/products/getProducts";
 import { UserIcon } from "@heroicons/react/24/solid";
+import ChatButton from "@/components/chat-button";
 
 const getCachedProduct = nextCache(getProduct, ["product-detail"], {
   tags: ["product-detail"],
@@ -88,12 +88,7 @@ export default async function ProductDetail({
             </button>
           </form>
         )}
-        <Link
-          href={``}
-          className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
-        >
-          채팅하기
-        </Link>
+        <ChatButton sellerId={product.userId} />
       </div>
     </div>
   );
